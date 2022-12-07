@@ -1,4 +1,4 @@
-const server = require('./server');
+const { server, nameValidator } = require('./server');
 const supertest = require('supertest');
 
 const request = supertest(server);
@@ -33,5 +33,25 @@ describe('Person Route', () => {
   test('Without a name in the query string, force a “500” error', async () => {
     const response = await request.get('/person');
     expect(response.statusCode).toBe(500);
+  });
+
+  describe('name validator', () => {
+    test('with name gandalf', () => {
+      const req = { query: { name: 'Gandalf' } };
+      const next = jest.fn();
+
+      nameValidator(req, {}, next);
+
+      expect(req.name).toBe('Gandalf');
+      expect(next).toHaveBeenCalled();
+    });
+
+    test('with no name', () => {
+      const req = { query: {} };
+      const next = jest.fn();
+      nameValidator(req, {}, next);
+
+      expect(next).toHaveBeenCalledWith('Failed validation: No name in query!');
+    });
   });
 });
