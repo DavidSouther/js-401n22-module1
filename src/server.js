@@ -1,8 +1,10 @@
 const express = require('express');
+const { userRoutes } = require('./routes/user.route');
 
 const server = express();
 
 server.use(logger);
+server.use(express.json());
 
 server.get('/hello', (_, res) => res.send('Hello!'));
 server.use((req, res, next) => {
@@ -24,6 +26,8 @@ server.get('/hello/:name', (req, res) =>
 // When you say goodbye, you recieve "nailed it"
 server.get('/goodbye', (_, res) => res.send('Nailed It!'));
 
+server.use(userRoutes);
+
 const nameValidator = (req, res, next) => {
   if (req.query.name) {
     req.name = req.query.name;
@@ -33,9 +37,8 @@ const nameValidator = (req, res, next) => {
   }
 };
 
-server.use(nameValidator);
-
-server.get('/person', (req, res) => {
+// server.use(nameValidator);
+server.get('/person', nameValidator, (req, res) => {
   res.status(200).send({ name: req.name });
 });
 
