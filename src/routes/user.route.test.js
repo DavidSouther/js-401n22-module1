@@ -60,4 +60,19 @@ describe('user routes', () => {
     expect(user.username).toBe('User2');
     expect(user.birthday).toBe('1989-10-10T00:00:00.000Z');
   });
+
+  it('creates a user with hobbies', async () => {
+    const response = await request.post('/user').send({
+      username: 'Loki',
+      birthday: '2018-03-01',
+      hobbies: ['Meowing', 'Scratching', 'Havock'],
+    });
+
+    expect(response.status).toBe(200);
+    const id = response.body.id;
+
+    const user = await request.get(`/user/${id}`);
+    expect(user.status).toBe(200);
+    expect(user.body.hobbies).toEqual(['Meowing', 'Scratching', 'Havock']);
+  });
 });

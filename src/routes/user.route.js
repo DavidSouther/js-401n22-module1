@@ -1,6 +1,6 @@
 const express = require('express');
 
-const { User } = require('../models/index');
+const { User, Hobby } = require('../models/index');
 
 const userRoutes = express();
 
@@ -18,11 +18,20 @@ async function getUsers(_, res) {
 
 async function getUser(req, res, next) {
   const id = req.params.id;
-  const user = await User.findOne({ where: { id: id } });
+  const user = await User.findOne({
+    where: { id: id },
+    include: Hobby,
+  });
   if (user === null) {
     next();
   } else {
-    res.json(user);
+    const rawUser = {
+      id: user.id,
+      username: user.username,
+      birthday: user.birthday,
+      hobbies: user.Hobbies.map((hobby) => hobby.name),
+    };
+    res.json(rawUser);
   }
 }
 
@@ -45,6 +54,12 @@ async function createUser(req, res) {
     username,
     birthday,
   });
+
+  const hobbies = req.body.hobbies ?? [];
+  for (const name of hobbies) {
+    await user.createHobby({ name });
+  }
+
   res.json(user);
 }
 
