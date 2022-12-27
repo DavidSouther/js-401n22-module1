@@ -57,7 +57,9 @@ server.use((err, req, res, next) => {
 
 function logger(req, _, next) {
   // Log out the request path
-  console.log(req.path);
+  if (process.env.NODE_ENV !== 'test') {
+    console.log(req.path);
+  }
   next();
 }
 
